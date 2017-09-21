@@ -11,13 +11,15 @@ import static EchoServer.EchoServer.conectionsCounter;
 public class MultiConnectionsHandler extends Thread {
 
     private Socket clientSocket = null;
+    private static int threadCounter = 0;
     private boolean isConnected;
-    private int connectionNumber;
+    private int threadNumber;
 
     public MultiConnectionsHandler(Socket clientSocket, int connectionNumber) {
         this.clientSocket = clientSocket;
         this.isConnected = true;
-        this.connectionNumber = connectionNumber;
+        threadCounter += 1;
+        this.threadNumber = threadCounter;
     }
 
     public void run() {
@@ -58,7 +60,7 @@ public class MultiConnectionsHandler extends Thread {
         try {
             clientSocket.close();
 //            interrupt();
-            System.out.println("Connection: " + connectionNumber + " closed ");
+            System.out.println("Tread: " + threadNumber + " closed ");
             interrupt();
         } catch (IOException e) {
             e.printStackTrace();
