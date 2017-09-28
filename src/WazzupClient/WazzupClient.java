@@ -12,7 +12,7 @@ public class WazzupClient {
     private boolean isConnected;
 
     public WazzupClient() {
-        this.isConnected = false;
+        isConnected = false;
     }
 
     public void connect(InetAddress address, int port) throws IOException {
@@ -25,7 +25,8 @@ public class WazzupClient {
 
 
         if (!isConnected()) {
-            this.isConnected = !this.isConnected;
+            isConnected = !isConnected;
+
             try {
                 this.serverSocket = new Socket(address, port);
                 System.out.println("Connected to " + serverSocket.toString());
@@ -56,12 +57,12 @@ public class WazzupClient {
     }
 
     private boolean isConnected() {
-        return this.isConnected;
+        return isConnected;
     }
 
     private void disconnect() throws IOException {
         System.out.println("No response from : " + serverSocket.toString());
-        this.serverSocket.close();
-        this.isConnected = !this.isConnected;
+        serverSocket.close();
+        isConnected = !isConnected;
     }
 }

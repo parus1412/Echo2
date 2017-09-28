@@ -36,7 +36,7 @@ public class EchoServer implements Runnable {
 
         System.out.println("Starting Echo server ...");
 
-        isRunning = true;
+        isRunning = !isRunning;
 
         try {
             this.serverSocket = new ServerSocket(this.port);
@@ -46,14 +46,14 @@ public class EchoServer implements Runnable {
         System.out.println("Echo Server started ...");
 
 
-        while ( isRunning() ) {
+        while ( isRunning ) {
             System.out.println("Waiting for next connection ...");
             try {
                 this.clientSocket = serverSocket.accept();
             } catch (IOException e) {
                 System.out.println("Echo Server stopped");
             }
-            if ( isRunning() ) {
+            if ( isRunning ) {
                 System.out.println("Client " + clientSocket.toString() + " was connected.");
                 connectionsCounter++;
                 System.out.println("Now connected: " + connectionsCounter);
@@ -67,14 +67,14 @@ public class EchoServer implements Runnable {
     }
 
     public void stop(Thread server) throws IOException {
-        if ( isRunning() ) {
+        if ( isRunning ) {
             for (MultiConnectionsHandler multiConnectionsHandler : connectionsList) {
                 multiConnectionsHandler.closeConnection();
                 multiConnectionsHandler.interrupt();
             }
             this.serverSocket.close();
             server.interrupt();
-            isRunning = false;
+            isRunning = !isRunning;;
         }
         System.out.println("Socket closed");
     }
