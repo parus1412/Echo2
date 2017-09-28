@@ -1,8 +1,5 @@
 package EchoServer;
 
-import MyEchoException.MyEchoException;
-
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -12,17 +9,17 @@ import static com.sun.jndi.ldap.LdapCtx.DEFAULT_PORT;
 
 public class EchoServer implements Runnable {
     private int port;
-    public static int conectionsCounter = 0;
     private static boolean isRunning = false;
     private ServerSocket serverSocket;
     private Socket clientSocket;
-    private ArrayList<MultiConnectionsHandler> connectionsList = new ArrayList<MultiConnectionsHandler>();
+    static int connectionsCounter = 0;
+    static ArrayList<MultiConnectionsHandler> connectionsList = new ArrayList<MultiConnectionsHandler>();
 
     private boolean isRunning() {
         return isRunning;
     }
 
-    public EchoServer() throws MyEchoException, IOException {
+    public EchoServer() throws IOException {
         this(DEFAULT_PORT);
     }
 
@@ -36,12 +33,10 @@ public class EchoServer implements Runnable {
 
     public void run() {
         MultiConnectionsHandler multiConnectionsHandler;
-        BufferedReader in = null;
 
         System.out.println("Starting Echo server ...");
 
-        this.isRunning = true;
-
+        isRunning = true;
 
         try {
             this.serverSocket = new ServerSocket(this.port);
@@ -56,33 +51,19 @@ public class EchoServer implements Runnable {
             try {
                 this.clientSocket = serverSocket.accept();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Echo Server stopped");
             }
             if ( isRunning() ) {
                 System.out.println("Client " + clientSocket.toString() + " was connected.");
-                conectionsCounter++;
-                System.out.println("Now connected: " + conectionsCounter);
+                connectionsCounter++;
+                System.out.println("Now connected: " + connectionsCounter);
 
-                multiConnectionsHandler = new MultiConnectionsHandler(this.clientSocket, conectionsCounter);
+                multiConnectionsHandler = new MultiConnectionsHandler(this.clientSocket);
                 connectionsList.add(multiConnectionsHandler);
 
                 multiConnectionsHandler.start();
-//                isRunning = false;
             }
         }
-
-//            in = new BufferedReader(new InputStreamReader(System.in));
-//            String userInput;
-
-//            while ((userInput = in.readLine()) != null ) {
-//                if ( userInput.contains("stop_server") ) {
-////                    multiServerSocket.interrupt();
-//                    stop();
-//                }
-//                System.out.println("Server user input: " + userInput);
-//            }
-
-
     }
 
     public void stop(Thread server) throws IOException {
@@ -93,8 +74,8 @@ public class EchoServer implements Runnable {
             }
             this.serverSocket.close();
             server.interrupt();
-            this.isRunning = false;
+            isRunning = false;
         }
-        System.out.println("Stop Echo Server");
+        System.out.println("Socket closed");
     }
 }

@@ -6,18 +6,16 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import static EchoServer.EchoServer.conectionsCounter;
+import static EchoServer.EchoServer.connectionsCounter;
 
 public class MultiConnectionsHandler extends Thread {
 
     private Socket clientSocket = null;
     private static int threadCounter = 0;
-    private boolean isConnected;
     private int threadNumber;
 
-    public MultiConnectionsHandler(Socket clientSocket, int connectionNumber) {
+    MultiConnectionsHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
-        this.isConnected = true;
         threadCounter += 1;
         this.threadNumber = threadCounter;
     }
@@ -45,39 +43,27 @@ public class MultiConnectionsHandler extends Thread {
                 System.out.println("Client input: " + clientInput);
             }
         } catch (IOException e) {
+            if (clientSocket.isClosed()) {
+                return;
+            }
             e.printStackTrace();
         }
-        if (clientSocket.isClosed()) {
-            return;
-        }
+
         System.out.println("Client " + clientSocket.toString() + " disconnected");
-        EchoServer.conectionsCounter--;
-        System.out.println("Now connected: " + conectionsCounter);
-//        interrupt();
+        closeConnection();
+        EchoServer.connectionsList.remove(this);
+        EchoServer.connectionsCounter--;
+        System.out.println("Now connected: " + connectionsCounter);
     }
 
-    public void closeConnection() {
+    void closeConnection() {
         try {
             clientSocket.close();
-//            interrupt();
             System.out.println("Tread: " + threadNumber + " closed ");
             interrupt();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-
-//    public void interrupt() {
-//        try {
-//            clientSocket.close();
-//            System.out.println("Connection: " + connectionNumber + " closed ");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-
-
 
 }
