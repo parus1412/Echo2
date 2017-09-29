@@ -24,12 +24,18 @@ public class WazzupClient {
         String response;
 
 
-        if (!isConnected()) {
+        if ( !isConnected() ) {
             isConnected = !isConnected;
 
             try {
-                this.serverSocket = new Socket(address, port);
+                try {
+                    this.serverSocket = new Socket(address, port);
+                } catch (IOException e) {
+                    System.out.println("WazzupClient: Unable to connect to remote host: Connection refused");
+                    return;
+                }
                 System.out.println("Connected to " + serverSocket.toString());
+
                 in = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
                 out = new PrintWriter(serverSocket.getOutputStream(), true);
 
@@ -63,6 +69,7 @@ public class WazzupClient {
     private void disconnect() throws IOException {
         System.out.println("No response from : " + serverSocket.toString());
         serverSocket.close();
+        System.out.println("Connection closed by foreign host.");
         isConnected = !isConnected;
     }
 }

@@ -8,12 +8,11 @@ import java.util.ArrayList;
 import static com.sun.jndi.ldap.LdapCtx.DEFAULT_PORT;
 
 public class EchoServer implements Runnable {
+    static int connectionsCounter = 0;
+    static ArrayList<MultiConnectionsHandler> connectionsList = new ArrayList<MultiConnectionsHandler>();
     private int port;
     private static boolean isRunning = false;
     private ServerSocket serverSocket;
-    private Socket clientSocket;
-    static int connectionsCounter = 0;
-    static ArrayList<MultiConnectionsHandler> connectionsList = new ArrayList<MultiConnectionsHandler>();
 
     private boolean isRunning() {
         return isRunning;
@@ -33,13 +32,14 @@ public class EchoServer implements Runnable {
 
     public void run() {
         MultiConnectionsHandler multiConnectionsHandler;
+        Socket clientSocket = null;
 
         System.out.println("Starting Echo server ...");
 
         isRunning = !isRunning;
 
         try {
-            this.serverSocket = new ServerSocket(this.port);
+            this.serverSocket = new ServerSocket(port);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -49,16 +49,16 @@ public class EchoServer implements Runnable {
         while ( isRunning ) {
             System.out.println("Waiting for next connection ...");
             try {
-                this.clientSocket = serverSocket.accept();
+                clientSocket = serverSocket.accept();
             } catch (IOException e) {
                 System.out.println("Echo Server stopped");
             }
             if ( isRunning ) {
                 System.out.println("Client " + clientSocket.toString() + " was connected.");
-                connectionsCounter++;
+                connectionsCounter += 1;
                 System.out.println("Now connected: " + connectionsCounter);
 
-                multiConnectionsHandler = new MultiConnectionsHandler(this.clientSocket);
+                multiConnectionsHandler = new MultiConnectionsHandler(clientSocket);
                 connectionsList.add(multiConnectionsHandler);
 
                 multiConnectionsHandler.start();
@@ -72,7 +72,7 @@ public class EchoServer implements Runnable {
                 multiConnectionsHandler.closeConnection();
                 multiConnectionsHandler.interrupt();
             }
-            this.serverSocket.close();
+            serverSocket.close();
             server.interrupt();
             isRunning = !isRunning;;
         }
